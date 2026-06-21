@@ -1,0 +1,28 @@
+﻿{
+  "name": "futokoro",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-public.js",
+    "test": "npm run test:domain && npm run test:io && npm run test:publish && npm run test:e2e",
+    "test:domain": "node --test domain.test.js",
+    "test:io": "node --test io.test.js",
+    "test:publish": "npm run build && node --test tests/publish.test.js",
+    "test:e2e": "node tests/smoke.playwright.js",
+    "test:smoke": "npm run test:e2e",
+    "test:visual": "playwright test visual.spec.js",
+    "test:a11y": "playwright test a11y.spec.js",
+    "quality:gate": "node scripts/quality-gate.mjs",
+    "quality:pw": "playwright test",
+    "quality:evidence": "node scripts/collect-ui-evidence.mjs",
+    "quality:visual:update": "playwright test visual.spec.js --update-snapshots",
+    "quality:aria:update": "playwright test a11y.spec.js --update-snapshots",
+    "deploy": "npm run build && npx wrangler pages deploy dist/ --project-name futokoro-com --branch main --commit-dirty=true"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.57.0",
+    "playwright": "^1.57.0"
+  }
+}
+

@@ -1,0 +1,18 @@
+Copyright (c) 2026 kapihatsu — ふところ.com
+
+All rights reserved.
+
+このソースコードは「透明性」のために公開しています。
+（入力値を保存・送信しない実装であることを、誰でも確認できるようにするため）
+
+閲覧は自由です。ただし、著作権者の書面による事前の許可なく、本コードの
+全部または一部を、使用・複製・改変・再配布・商用利用することを禁じます。
+
+---
+
+This source code is published for transparency only, so that anyone can
+verify that user input is neither stored nor transmitted.
+
+You may view this source. You may NOT use, copy, modify, redistribute, or
+use it commercially, in whole or in part, without prior written permission
+from the copyright holder.

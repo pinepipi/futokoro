@@ -1,0 +1,5 @@
+- tablist /\d+ヶ月の表示を切り替える/:
+  - tab "まとめ" [selected]
+  - tab "付箋"
+  - tab "残高グラフ"
+  - tab "金額表"

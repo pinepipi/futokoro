@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="この出費、今して大丈夫？現金・収入・支出を入れるだけ。保存・送信なし、ログイン不要で、購入後の家計余力を試算。生活費の何ヶ月分あるか・12ヶ月の底の月も分かります。">
+    <meta name="robots" content="index,follow">
+    <meta property="og:title" content="ふところ.com | この出費、今して大丈夫？">
+    <meta property="og:description" content="買う前の3秒チェック。保存・送信なし、ログイン不要。購入後の家計余力がすぐ分かります。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ふところ.com">
+    <meta property="og:locale" content="ja_JP">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="ふところ.com | この出費、今して大丈夫？">
+    <meta name="twitter:description" content="この出費して大丈夫？保存・送信なし、ログイン不要の家計チェック。">
+    <title>ふところ.com | この出費、今して大丈夫？</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body class="app-empty">
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">保存なし・送信なし・ログイン不要</p>
+          <h1>ふところ.com</h1>
+          <p class="header-copy">この出費、今して大丈夫？<strong>現金・収入・支出の3つを入れるだけ</strong>。購入後に3ヶ月分の備えが残るか、12ヶ月でいちばん現金が薄くなる月がどこかを、<strong>保存も送信もせずに</strong>確認します。</p>
+        </div>
+      </header>
+
+      <ul class="trust-strip" aria-label="データの扱い">
+        <li>この端末だけで計算</li>
+        <li>入力は保存しません</li>
+        <li>外部に送信しません</li>
+      </ul>
+
+      <section class="layout">
+        <section class="results-column">
+          <section class="results-board panel" aria-live="polite">
+            <section class="switch-panel">
+              <div class="view-header">
+                <div class="view-switch" role="tablist" aria-label="12ヶ月の表示を切り替える">
+                  <button class="view-tab is-active" type="button" id="viewNowTab" data-view-tab="now" role="tab" aria-controls="view-now" aria-selected="true">まとめ</button>
+                  <button class="view-tab" type="button" id="viewNotesTab" data-view-tab="notes" role="tab" aria-controls="view-notes" aria-selected="false">付箋</button>
+                  <button class="view-tab" type="button" id="viewChartTab" data-view-tab="chart" role="tab" aria-controls="view-chart" aria-selected="false">残高グラフ</button>
+                  <button class="view-tab" type="button" id="viewTableTab" data-view-tab="table" role="tab" aria-controls="view-table" aria-selected="false">金額表</button>
+                </div>
+              </div>
+
+              <section class="view-pane is-active" id="view-now" data-view-panel="now" role="tabpanel" aria-labelledby="viewNowTab">
+                <section class="panel status-panel">
+                  <div class="status-topline">
+                    <div class="status-heading">
+                      <svg class="futokoro-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                        <path class="pouch-body" d="M18.5 22 C11 26.5 9 33.5 11.4 39.8 C13.6 44.7 18.6 45 24 45 C29.4 45 34.4 44.7 36.6 39.8 C39 33.5 37 26.5 29.5 22 Z"></path>
+                        <path class="pouch-string" d="M14.5 23 C13.6 25.4 13.2 27.4 14 29.4"></path>
+                        <path class="pouch-string" d="M33.5 23 C34.4 25.4 34.8 27.4 34 29.4"></path>
+                        <rect class="pouch-cuff" x="16.5" y="18.5" width="15" height="5.4" rx="2.7"></rect>
+                        <path class="pouch-string" d="M19 21.2 C21.5 22.1 26.5 22.1 29 21.2"></path>
+                        <circle class="pouch-knot" cx="24" cy="21.2" r="1.7"></circle>
+                      </svg>
+                      <div>
+                        <p class="eyebrow">今のふところ</p>
+                        <h2 id="statusLabel">3つ入れると見えてきます</h2>
+                      </div>
+                    </div>
+                    <div class="months-badge-block">
+                      <p class="months-badge-lead" aria-hidden="true">いまの現金は生活費の</p>
+                      <div id="monthsBadge" class="months-badge" aria-hidden="true">--ヶ月分</div>
+                      <p id="monthsBadgeNote" class="months-badge-note" aria-hidden="true">収入が止まっても、いまの現金で暮らせる月数の目安です</p>
+                      <p class="sr-only" id="monthsBadgeSr">まだ試算していません</p>
+                    </div>
+                  </div>
+                  <p id="statusMessage" class="status-message">現金・手取り・毎月の生活費だけで、手元のお金が何ヶ月分あるかを出します。</p>
+                  <p id="lowestHint" class="lowest-hint">いちばん少ない月は、入力後に表示します。</p>
+                  <div class="empty-hints" aria-hidden="true">
+                    <span>現金が何ヶ月分か</span>
+                    <span>12ヶ月の付箋</span>
+                    <span>残高グラフ</span>
+                  </div>
+                  <div class="fund-ruler" aria-label="現金が何ヶ月あるか">
+                    <div class="ruler-copy">
+                      <span>現金が何ヶ月分か</span>
+                      <strong id="rulerReadout">--</strong>
+                    </div>
+                    <div class="dial-wrap" aria-hidden="true">
+                      <svg class="fund-dial" viewBox="0 0 200 122" role="img" focusable="false">
+                        <path class="dial-base" d="M24 98 A76 76 0 0 1 176 98" pathLength="100"></path>
+                        <path id="dialProgress" class="dial-progress" d="M24 98 A76 76 0 0 1 176 98" pathLength="100" stroke-dasharray="0 100"></path>
+                        <g id="dialNeedle" class="dial-needle" transform="rotate(-90 100 98)">
+                          <line x1="100" y1="98" x2="100" y2="38"></line>
+                          <circle cx="100" cy="98" r="5"></circle>
+                        </g>
+                        <text x="21" y="116">0</text>
+                        <text x="57" y="48">3</text>
+                        <text x="100" y="28">6</text>
+                        <text x="143" y="48">9</text>
+                        <text x="173" y="116">12</text>
+                      </svg>
+                    </div>
+                    <meter id="fundRulerMeter" class="sr-only" min="0" max="12" low="1" high="3" optimum="6" value="0">0</meter>
+                    <p id="rulerStage" class="ruler-stage">数字を入れると、現金が何ヶ月分あるか出ます。</p>
+                    <p class="ruler-formula">この月数 ＝ いまの現金 ÷ 毎月の生活費</p>
+                  </div>
+                  <div class="goal-progress" aria-label="3ヶ月分と6ヶ月分への進み具合">
+                    <p class="goal-progress-head">備えの目安は「毎月の生活費」の3〜6ヶ月分。急な収入減や大きな出費に備える線です。バーは"いまの現金がその目安の何割まで届いているか"を表します。</p>
+                    <div class="goal-progress-row">
+                      <div>
+                        <span>3ヶ月分（<span id="goal3Amount">--</span>）まで</span>
+                        <strong id="progress3Text">--</strong>
+                      </div>
+                      <div class="goal-track" aria-hidden="true"><span id="progress3Fill"></span></div>
+                    </div>
+                    <div class="goal-progress-row">
+                      <div>
+                        <span>6ヶ月分（<span id="goal6Amount">--</span>）まで</span>
+                        <strong id="progress6Text">--</strong>
+                      </div>
+                      <div class="goal-track" aria-hidden="true"><span id="progress6Fill"></span></div>
+                    </div>
+                  </div>
+                  <div class="basis-note" aria-label="判定の目安">
+                    <strong>判定の目安</strong>
+                    <p>基準は「毎月の生活費」。その3ヶ月分・6ヶ月分を目安線にしています。現金が生活費の何ヶ月分あるかで4段階に分けています。</p>
+                    <p>0〜1ヶ月：支払い確認／1〜3ヶ月：積み増し／3〜6ヶ月：ひと安心／6ヶ月〜：余白づくり。</p>
+                    <p>3〜6ヶ月分は一般的な生活防衛資金の目安です（出どころは下の「3〜6ヶ月の目安と計算式」へ）。</p>
+                    <p>この月数は「収入が止まった場合」に今の現金でもつ目安です。下の付箋・残高グラフは収入が続いた場合の見通しなので、数字が違って見えることがあります。</p>
+                  </div>
+                </section>
+
+  
+                <section class="summary-grid summary-grid--duo">
+                  <article class="metric-card highlight">
+                    <span>12ヶ月でいちばん薄い月</span>
+                    <strong id="lowestMonth">--</strong>
+                  </article>
+                  <article class="metric-card">
+                    <span>12ヶ月後の残高</span>
+                    <strong id="endingBalance">--円</strong>
+                  </article>
+                </section>
+              </section>
+
+              <section class="view-pane" id="view-notes" data-view-panel="notes" role="tabpanel" aria-labelledby="viewNotesTab" hidden>
+                <section class="note-board" aria-label="12ヶ月の付箋ボード">
+                  <article class="note-summary-card">
+                    <div class="note-summary-pin" aria-hidden="true"></div>
+                    <p class="note-status-chip" id="noteBoardBadge">今のふところ</p>
+                    <strong id="noteBoardMonths" aria-hidden="true">--ヶ月分</strong>
+                    <p id="noteBoardLabel" aria-hidden="true">いまの現金が生活費の何ヶ月分か</p>
+                    <p class="sr-only" id="noteBoardSr">まだ試算していません</p>
+                    <p class="note-summary-formula">いまの現金 ÷ 毎月の生活費</p>
+                    <p id="noteBoardMessage">現金・手取り・毎月の生活費だけで、12ヶ月の付箋が並びます。</p>
+                    <div class="note-summary-bottom">
+                      <span>6ヶ月分まであと</span>
+                      <strong id="noteBoardTarget6">--円</strong>
+                    </div>
+                  </article>
+
+                  <section class="note-board-main">
+                    <div class="note-board-heading">
+                      <div class="section-title compact-title note-board-title">
+                        <h2>これからの12ヶ月</h2>
+                        <p>カード・ボーナス・車検などを付箋で確認</p>
+                      </div>
+                      <div class="note-legend" aria-label="付箋の色（その月末の残高が生活費の何ヶ月分か）">
+                        <span class="note-legend-lead">色＝月末残高が、生活費の何ヶ月分あるか（あとどれだけ貯めれば安心か）</span>
+                        <div class="note-legend-chips">
+                          <span class="legend-strong">6ヶ月分以上</span>
+                          <span class="legend-calm">3〜6ヶ月分</span>
+                          <span class="legend-warn">1〜3ヶ月分</span>
+                          <span class="legend-danger">1ヶ月分未満</span>
+                        </div>
+                      </div>
+                      <p class="note-sim-note">これは<strong>「いまの入力がこのまま続いたら」の予測（シミュレーション）</strong>です。目標額ではありません。</p>
+                    </div>
+                    <div id="monthNotes" class="month-notes note-board-month-notes" aria-label="12ヶ月の予定と月末残高"></div>
+                  </section>
+                </section>
+              </section>
+
+              <section class="view-pane" id="view-chart" data-view-panel="chart" role="tabpanel" aria-labelledby="viewChartTab" hidden>
+                <div class="section-title compact-title">
+                  <h2>残高グラフ</h2>
+                  <p id="chartCaption">線が下がる月ほど現金が少ない月です</p>
+                </div>
+                <p class="chart-help">このグラフは見るだけです。月ごとの詳しい金額は「金額表」で確認できます。</p>
+                <div id="balanceChart" class="balance-chart" aria-label="12ヶ月の現金残高推移"></div>
+              </section>
+
+              <section class="view-pane" id="view-table" data-view-panel="table" role="tabpanel" aria-labelledby="viewTableTab" hidden>
+                <div class="section-title compact-title">
+                  <h2>金額表</h2>
+                  <p>月ごとの入金・支出・月末残高</p>
+                </div>
+                <div class="projection-table-wrap">
+                  <table class="projection-table">
+                    <thead>
+                      <tr>
+                        <th>月</th>
+                        <th>入金</th>
+                        <th>支出</th>
+                        <th>月末残高</th>
+                      </tr>
+                    </thead>
+                    <tbody id="projectionRows"></tbody>
+                  </table>
+                </div>
+              </section>
+            </section>
+          </section>
+
+          <section class="panel support-panel">
+            <div class="section-title">
+              <h2>次の一歩</h2>
+              <p>いま家計でできること</p>
+            </div>
+            <ol id="actionList" class="action-list">
+              <li>毎月の生活費を入れると、現金が何ヶ月分あるか出せます</li>
+              <li>カード払いなど今月の予定は、分かる時だけ追加できます</li>
+              <li>ボーナスや一括請求は、必要な月だけ来月以降に追加できます</li>
+            </ol>
+          </section>
+
+
+        </section>
+
+        <aside class="side-column">
+          <form id="simulatorForm" class="panel input-panel" autocomplete="off">
+            <div class="section-title">
+              <h2>まず3つだけ</h2>
+              <p>現金・手取り・生活費を入れるだけ</p>
+            </div>
+
+            <fieldset>
+              <legend>基本情報</legend>
+              <div class="grid-three">
+                <label>
+                  いまの現金・預金
+                  <span class="label-help">生活口座＋緊急用のすべて</span>
+                  <input id="currentCash" data-amount-input type="text" inputmode="numeric" autocomplete="off" placeholder="1,200,000">
+                </label>
+                <label>
+                  毎月の手取り
+                  <span class="label-help">世帯の手取り合計でも可</span>
+                  <input id="monthlyIncome" data-amount-input type="text" inputmode="numeric" autocomplete="off" placeholder="380,000">
+                </label>
+                <label>
+                  毎月の生活費
+                  <span class="label-help">家賃・食費・通信・保険など、毎月ほぼ同じ支出。毎月ほぼ同じカード払いもここ</span>
+                  <input id="monthlyExpense" data-amount-input type="text" inputmode="numeric" autocomplete="off" placeholder="280,000">
+                </label>
+              </div>
+            </fieldset>
+
+            <p id="basicsHint" class="basics-hint" aria-live="polite" hidden>3つ揃うと計算が始まります</p>
+
+            <section id="buy-check-section" class="buy-check-panel" aria-label="購入前チェック" inert>
+              <div class="buy-check-inner">
+                <div class="section-title">
+                  <h2>購入前チェック <span class="optional-badge">任意</span></h2>
+                  <p>値段と購入月を入れると、購入後に3ヶ月分の備えを下回るかどうかを試算します（この端末だけで計算）</p>
+                </div>
+                <div class="buy-check-form">
+                  <label>
+                    ほしいモノの値段
+                    <input id="buyAmount" data-amount-input type="text" inputmode="numeric" autocomplete="off" placeholder="350,000">
+                  </label>
+                  <label>
+                    いつ買う？
+                    <select id="buyWhen" aria-label="購入する月"></select>
+                  </label>
+                  <button type="button" id="buyCheckButton">判定する</button>
+                </div>
+                <div id="buyResult" class="buy-result" aria-live="polite" hidden>
+                  <span id="buyVerdict" class="buy-verdict"></span>
+                  <p id="buyReason" class="buy-reason"></p>
+                </div>
+              </div>
+            </section>
+
+            <button type="button" id="sampleButton" class="sample-btn">例を入れて試す</button>
+
+            <p class="panel-copy">まずはざっくりで大丈夫。毎月ほぼ同じ支出を生活費へ、今月だけ大きい支払いは下の「大きな支払い」へ分けます。</p>
+
+            <div class="empty-guide">
+              <p class="empty-guide-lead">大きな買い物の前に3秒チェック。下の3つを入れるだけで確認できます（<strong>保存も送信もしません</strong>）。</p>
+              <ul class="empty-guide-list">
+                <li><strong>これ買える？</strong><span>値段と時期を入れると、購入後に3ヶ月分の備えが残るか確認</span></li>
+                <li><strong>あと何ヶ月分？</strong><span>いまの現金が、毎月の生活費の何ヶ月分もつか</span></li>
+                <li><strong>薄くなる月は？</strong><span>カード・車検・ボーナスを反映した12ヶ月の残高グラフ</span></li>
+              </ul>
+              <p class="empty-guide-hint">冷蔵庫35万円・車検12万円・旅行8万円など、迷ったら「例を入れて試す」で動きを見てみてください。</p>
+            </div>
+
+            <section class="extra-plans" aria-label="大きな支払い・臨時の収支の入力">
+              <div class="extra-header">
+                <div>
+                  <h3>大きな支払い・臨時の収支</h3>
+                  <p>カード・ボーナス・一括請求がある月だけ。空欄は0円です。</p>
+                </div>
+              </div>
+
+              <details class="extra-pane optional-months" id="extra-months">
+                <summary>今月・来月以降の予定を入れる ▸ <span class="optional-label">（任意）</span></summary>
+                <div class="extra-months-body">
+                  <p class="field-help">任意です。カード一括・車検・家電などの大きな出費、ボーナスなどの臨時収入を、わかる月だけ入れてください。今月分は表の一番上に入れてください。</p>
+                  <div class="month-table-wrap">
+                    <table class="month-input-table">
+                      <thead>
+                        <tr>
+                          <th>月</th>
+                          <th>大きな出費</th>
+                          <th>臨時収入</th>
+                        </tr>
+                      </thead>
+                      <tbody id="monthInputs"></tbody>
+                    </table>
+                  </div>
+                  <button type="button" class="extra-months-done" id="extraMonthsDone">完了</button>
+                </div>
+              </details>
+            </section>
+
+            <div class="form-actions">
+              <button type="button" id="applyButton" disabled>結果を見る</button>
+              <button type="reset" id="resetButton">入力をクリア</button>
+            </div>
+            <p class="form-actions-hint" id="applyHint">入力すると自動で計算します。「結果を見る」で結果の位置へ移動できます。</p>
+
+            <div class="empty-info" aria-label="このツールの見方・数字の出どころ">
+              <div class="empty-info-col">
+                <h3>お金の目安（目標）</h3>
+                <p>いまの現金が<strong>毎月の生活費の3〜6ヶ月分</strong>あると、急な収入減や大きな出費にも落ち着いて対応できます。これがこのツールの「目安」です。</p>
+                <ul class="empty-info-steps">
+                  <li><span class="info-dot danger" aria-hidden="true"></span>0〜1ヶ月分：まず今月の支払いを確認</li>
+                  <li><span class="info-dot warn" aria-hidden="true"></span>1〜3ヶ月分：少しずつ積み増し</li>
+                  <li><span class="info-dot calm" aria-hidden="true"></span>3〜6ヶ月分：ひと安心の範囲</li>
+                  <li><span class="info-dot strong" aria-hidden="true"></span>6ヶ月分〜：余白づくり</li>
+                </ul>
+              </div>
+              <div class="empty-info-col">
+                <h3>数字の出どころ</h3>
+                <p class="empty-info-formula">現金が何ヶ月分 ＝ いまの現金 ÷ 毎月の生活費</p>
+                <p class="empty-info-formula">12ヶ月の残高 ＝ 前月残高 ＋ 収入 ＋ 臨時収入 − 生活費 − カード − 臨時支出</p>
+                <p>「3〜6ヶ月分」は一般的な生活防衛資金の目安として、国内銀行や金融機関の解説で紹介されています。結果は正解ではなく、家計を見直す入口として使ってください。</p>
+                <p class="empty-info-sources">出典：<a href="https://www.77bank.co.jp/financial-column/article78.html" target="_blank" rel="noopener noreferrer">七十七銀行</a> / <a href="https://www.fidelity.com/learning-center/smart-money/emergency-fund" target="_blank" rel="noopener noreferrer">Fidelity</a></p>
+              </div>
+            </div>
+          </form>
+
+          <section class="panel io-panel" aria-labelledby="io-title">
+            <div class="section-title">
+              <h2 id="io-title">記録の保存・読み込み</h2>
+              <p>この端末のファイルに書き出し／読み込み（送信なし）</p>
+            </div>
+            <p class="io-note">入力した内容をこの端末のファイルに保存し、次回や別端末で読み込んで続きから見られます。<strong>サーバーには一切送信しません。</strong>月ごとの記録は、書き出したファイルを手元で残しておく形で管理できます。</p>
+            <div class="io-actions">
+              <button type="button" id="exportJsonButton" class="io-btn">書き出す（JSON）</button>
+              <label class="io-btn io-btn--file" for="importJsonInput">読み込む（JSON）
+                <input type="file" id="importJsonInput" accept="application/json,.json" hidden>
+              </label>
+              <button type="button" id="exportCsvButton" class="io-btn io-btn--ghost">CSVで書き出す</button>
+              <label class="io-btn io-btn--ghost io-btn--file" for="importCsvInput">CSVを読み込む
+                <input type="file" id="importCsvInput" accept="text/csv,.csv" hidden>
+              </label>
+            </div>
+            <p class="io-message" id="ioMessage" role="status" aria-live="polite"></p>
+            <p class="io-hint">CSVはExcelなどの表計算で開けます。読み込みは「ふところで書き出したファイル」が対象です。</p>
+          </section>
+
+          <section class="panel notice-panel compact-notice">
+            <div class="section-title">
+              <h2>データと免責</h2>
+              <p>入力はこの端末の中だけ</p>
+            </div>
+            <p>
+              入力された金額と試算結果はサーバーへ送信せず、Cookie、localStorage、アクセス解析、外部APIを使用しません。
+              入力値はブラウザ上の計算にのみ使用され、ページを再読み込みすると消えます。
+            </p>
+            <details class="notice-details">
+              <summary>免責</summary>
+              <p>
+                本ツールは一般的な家計試算です。金融商品、投資、保険、借入、医療、税務、法律その他の個別判断を助言・推奨するものではありません。
+                試算結果は将来の収支、支払能力、安全性を保証しません。
+              </p>
+              <p>
+                広告を掲載する場合は広告であることを明示し、入力欄や試算結果の近くには配置しません。
+                <a class="inline-link" href="./privacy.html">プライバシーポリシー</a>
+              </p>
+            </details>
+          </section>
+
+        </aside>
+      </section>
+
+      <section class="panel evidence-panel" aria-labelledby="evidence-title">
+        <div class="section-title">
+          <h2 id="evidence-title">3〜6ヶ月の目安と計算式</h2>
+          <p>数字の出どころ</p>
+        </div>
+        <div class="evidence-grid">
+          <article>
+            <span>3〜6ヶ月の線</span>
+            <p>生活防衛資金は生活費の3〜6ヶ月分が一般的な目安として紹介されることが多いため、このページでも目安線として使います。</p>
+            <p>
+              <a href="https://www.77bank.co.jp/financial-column/article78.html" target="_blank" rel="noopener noreferrer">七十七銀行</a>
+              /
+              <a href="https://www.fidelity.com/learning-center/smart-money/emergency-fund" target="_blank" rel="noopener noreferrer">Fidelity</a>
+            </p>
+          </article>
+          <article>
+            <span>人によって変わる</span>
+            <p>家族構成、仕事、住宅費、車、医療、教育費で必要な余白は変わります。結果は正解ではなく、家計を見直す入口です。</p>
+          </article>
+          <article>
+            <span>このページの計算式</span>
+            <p>12ヶ月残高 ＝ 前月残高 ＋ 収入 ＋ 臨時収入 − 生活費 − カード − 臨時支出。月ごとの数字は「金額表」で確認できます。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel faq-panel" aria-labelledby="faq-title">
+        <div class="section-title">
+          <h2 id="faq-title">よくある質問</h2>
+        </div>
+        <div class="faq-grid">
+          <details>
+            <summary>生活防衛資金は何ヶ月分で見る？</summary>
+            <p>このページでは、まず3ヶ月分と6ヶ月分を目安として表示します。家族構成、仕事、住まい、病気や車の予定で必要な余白は変わるため、結果は一般的な家計確認の入り口として見てください。</p>
+          </details>
+          <details>
+            <summary>3ヶ月・6ヶ月の根拠は？</summary>
+            <p>国内銀行や金融機関の解説で、生活費の3〜6ヶ月分が一般的な目安として紹介されています。ふところ.comでは個別助言ではなく、月数を見るための目安線として使っています。</p>
+          </details>
+          <details>
+            <summary>カード支払いは生活費に入れる？</summary>
+            <p>毎月ほぼ同じ支払いは生活費に含め、今月だけ多い引落しや一括請求は「大きな支払い・臨時の収支」へ分けると、底の月を見つけやすくなります。二重に入れないことだけ注意してください。</p>
+          </details>
+          <details>
+            <summary>まず何から見ればいい？</summary>
+            <p>大きな買い物を控えている場合は、まず「この出費、今して大丈夫？」に値段と時期を入れてください。12ヶ月の流れは「付箋」タブ、月別の残高は「残高グラフ」や「金額表」で確認できます。</p>
+          </details>
+          <details>
+            <summary>投資や副業の前にも見る？</summary>
+            <p>投資や副業をすすめるものではありません。大きな判断の前に、家計の現金がどの月で薄くなるかを確認するための試算として使ってください。</p>
+          </details>
+          <details>
+            <summary>結果は正確な予測？</summary>
+            <p>入力した金額をもとにした概算です。給与、賞与、住宅費、カード引落し、医療費、車、教育費などが変わったら、数字を入れ直して見直してください。</p>
+          </details>
+          <details>
+            <summary>冷蔵庫・家電・車検など高額の支払い前に確認したい</summary>
+            <p>「この出費、今して大丈夫？」に値段と購入月を入れると、購入後にいちばん薄くなる月と残高が試算できます。3ヶ月分の備えを下回るかどうかを目安にしてください。結果は概算であり、個別の購入を推奨するものではありません。</p>
+          </details>
+          <details>
+            <summary>家計の余裕がいくらあるか確認したい</summary>
+            <p>現金・収入・支出の3つを入れると、いまの現金が生活費の何ヶ月分あるかが試算できます。3ヶ月分・6ヶ月分を目安の線として使いますが、必要な余白は家族構成や仕事の形態によって変わります。</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="ad-area" aria-label="広告">
+        <div class="ad-slot" data-ad-slot-key="footer" data-ad-status="pending" hidden>
+          <p class="ad-label">広告</p>
+          <div class="ad-creative" aria-live="polite"></div>
+          <p class="ad-note">広告は入力フォームや試算結果から離して表示します。</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>ふところ.com &nbsp;·&nbsp; <span class="footer-brand">kapihatsu</span></p>
+    </footer>
+
+    <script src="./ads-config.js"></script>
+    <script src="./ads.js"></script>
+    <script src="./domain.js"></script>
+    <script src="./io.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
