@@ -24,6 +24,14 @@
   box-sizing: border-box;
 }
 
+/* Android Chrome のフォントブースティング（自動テキスト拡大）を無効化。
+   実機で文字が肥大化し「2.6ヶ月/分」「（任/意）」のように改行が崩れる問題の対策。
+   100% にすることでユーザーのピンチズームは維持する。 */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
