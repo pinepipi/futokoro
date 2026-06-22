@@ -565,7 +565,11 @@ function renderMonthNotes(projection, input) {
 function renderChart(input, projection) {
   clearChildren(elements.balanceChart);
   const width = 1000;
-  const height = 400;
+  // モバイルは縦長 viewBox で枠を埋める（横長2.5:1だと幅に合わせて高さが潰れ小さく見える問題の解消）。
+  // width=1000 は据え置き＝左右の軸ラベル位置・文字サイズは不変、縦だけ伸ばす。
+  const narrowChart = typeof window !== "undefined" && window.matchMedia
+    && window.matchMedia("(max-width: 640px)").matches;
+  const height = narrowChart ? 760 : 400;
   const padding = { top: 36, right: 150, bottom: 54, left: 78 };
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
