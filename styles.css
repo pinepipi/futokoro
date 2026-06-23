@@ -1915,10 +1915,19 @@ body.app-empty .sample-btn:hover {
 }
 
 @media (max-width: 640px) {
-  /* モバイルは縦長 viewBox(1000x760)に合わせ、枠を埋めて十分な高さを出す（レターボックス解消） */
+  /* モバイルは viewBox(460x380)に合わせる。横長を狭幅へ潰さないことで軸金額・月名・目安が実寸で読める */
   .chart-svg {
-    aspect-ratio: 1000 / 760;
+    aspect-ratio: 460 / 380;
     height: auto;
+  }
+  /* 小さな座標系（幅460）に対し、文字は実画面で読めるサイズへ拡大（金額は「万」表記で横幅を圧縮） */
+  .chart-guide-label,
+  .chart-month-label {
+    font-size: 17px;
+  }
+  .chart-guide-sub,
+  .chart-axis-label {
+    font-size: 14px;
   }
 }
 

@@ -564,13 +564,22 @@ function renderMonthNotes(projection, input) {
 
 function renderChart(input, projection) {
   clearChildren(elements.balanceChart);
-  const width = 1000;
-  // モバイルは縦長 viewBox で枠を埋める（横長2.5:1だと幅に合わせて高さが潰れ小さく見える問題の解消）。
-  // width=1000 は据え置き＝左右の軸ラベル位置・文字サイズは不変、縦だけ伸ばす。
   const narrowChart = typeof window !== "undefined" && window.matchMedia
     && window.matchMedia("(max-width: 640px)").matches;
-  const height = narrowChart ? 760 : 400;
-  const padding = { top: 36, right: 150, bottom: 54, left: 78 };
+  // モバイルは viewBox を実表示幅に近い小さめの座標系にする。
+  // 横長1000を狭幅へ押し込むと軸金額・月名・目安ラベルが約0.37倍に潰れて判読不能になるため、
+  // 幅460・専用padding＋金額を「万」表記にして、文字を実寸で読めるサイズに保つ。
+  const width = narrowChart ? 460 : 1000;
+  const height = narrowChart ? 380 : 400;
+  const padding = narrowChart
+    ? { top: 20, right: 96, bottom: 38, left: 64 }
+    : { top: 36, right: 150, bottom: 54, left: 78 };
+  // モバイルの金額ラベルは「万」表記（例: 1,680,000 → 168万）で横幅を圧縮し読みやすく。
+  const toMan = (v) => {
+    const man = Math.round(v / 10000);
+    return man === 0 ? "0" : `${man.toLocaleString("ja-JP")}万`;
+  };
+  const fmtAxis = narrowChart ? toMan : yen;
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
   const target3 = input.monthlyExpense > 0 ? input.monthlyExpense * 3 : 0;
@@ -600,8 +609,8 @@ function renderChart(input, projection) {
 
   appendSvg(svg, "path", { class: "chart-area", d: areaPath });
   // 左Y軸: 上端＝最高残高、下端＝最低残高の金額を表示（縦のスケールを読めるように）
-  appendSvg(svg, "text", { class: "chart-axis-label", x: padding.left - 8, y: (padding.top + 4).toFixed(1) }, yen(maxValue));
-  appendSvg(svg, "text", { class: "chart-axis-label", x: padding.left - 8, y: (height - padding.bottom + 4).toFixed(1) }, yen(minValue));
+  appendSvg(svg, "text", { class: "chart-axis-label", x: padding.left - 8, y: (padding.top + 4).toFixed(1) }, fmtAxis(maxValue));
+  appendSvg(svg, "text", { class: "chart-axis-label", x: padding.left - 8, y: (height - padding.bottom + 4).toFixed(1) }, fmtAxis(minValue));
   [0, target3, target6].forEach((value, index) => {
     if (!Number.isFinite(value)) return;
     const y = yFor(value);
@@ -624,7 +633,7 @@ function renderChart(input, projection) {
         class: "chart-guide-sub",
         x: width - padding.right + 10,
         y: (y + 11).toFixed(1)
-      }, yen(value));
+      }, fmtAxis(value));
     }
   });
 
