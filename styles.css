@@ -2197,15 +2197,18 @@ body.app-empty .sample-btn:hover {
     flex-direction: column;
   }
 
+  /* 4タブは内容幅ベースで配分（grid等幅だと「残高グラフ」が1/4枠に収まらず右へ溢れて見える） */
   .view-switch {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    display: flex;
     width: 100%;
+    gap: 4px;
   }
 
   .view-tab {
+    flex: 1 1 auto;
     width: auto;
-    padding-inline: 8px;
+    padding-inline: 6px;
+    text-align: center;
   }
 
   .grid-three {
@@ -2272,6 +2275,28 @@ body.app-empty .sample-btn:hover {
   .basis-note,
   .goal-progress-head {
     display: none;
+  }
+
+  /* 問い合わせページ：白カードからのはみ出し対策（フォーム/ウィジェットを枠内に収める） */
+  .document-panel {
+    padding: 14px;
+  }
+  .fb-form {
+    padding: 12px;
+  }
+  .cf-turnstile {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  /* 「今のふところ」等のカードは横余白を詰めて結果に幅を使う
+     （results-board 28px ＋ status-panel 横28px の二重余白を解消・スマホは横余白ほぼ不要） */
+  .results-board {
+    padding: 14px 6px;
+  }
+  .status-panel {
+    grid-template-columns: 1fr;
+    padding: 20px 12px 16px;
   }
 }
 
