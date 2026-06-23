@@ -437,7 +437,7 @@ legend {
 }
 .optional-months > summary::-webkit-details-marker { display: none; }
 .optional-months > summary:hover { background: var(--accent-soft); }
-.optional-label { font-weight: 400; font-size: 0.82em; opacity: 0.7; }
+.optional-label { font-weight: 400; font-size: 0.82em; opacity: 0.7; white-space: nowrap; flex-shrink: 0; }
 
 .optional-months[open] {
   position: fixed;
@@ -2256,6 +2256,22 @@ body.app-empty .sample-btn:hover {
     max-width: 100%;
     min-height: auto;
     overflow: hidden;
+  }
+
+  /* ヒーロー月数ブロックは左寄せ・全幅に（右寄せ＋22ch狭幅の不自然な改行＝「4.3ヶ月分」位置変・「です」孤立 を解消） */
+  .months-badge-block {
+    justify-items: start;
+    text-align: left;
+    width: 100%;
+  }
+  .months-badge-note {
+    max-width: none;
+  }
+
+  /* スマホは情報量を抑える：判定根拠の長文・目安バーの長い説明文は非表示（要点は上に出ている） */
+  .basis-note,
+  .goal-progress-head {
+    display: none;
   }
 }
 
