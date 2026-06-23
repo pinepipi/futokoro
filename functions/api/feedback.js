@@ -50,6 +50,26 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: "forward_failed" }, 502);
   }
 
+  // 3) GitHub の private repo に issue 化（GITHUB_TOKEN があれば・best-effort）。
+  //    失敗しても致命ではない（Slack には届いている）。
+  if (env.GITHUB_TOKEN) {
+    try {
+      const title = `[${kind}] ${message.replace(/\s+/g, " ").slice(0, 60)}`;
+      await fetch("https://api.github.com/repos/pinepipi/futokoro-feedback/issues", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "User-Agent": "futokoro-feedback-bot",
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({ title, body: message })
+      });
+    } catch {
+      /* issue作成失敗は致命ではない */
+    }
+  }
+
   return json({ ok: true });
 }
 
