@@ -571,8 +571,9 @@ function renderChart(input, projection) {
   // 幅460・専用padding＋金額を「万」表記にして、文字を実寸で読めるサイズに保つ。
   const width = narrowChart ? 460 : 1000;
   const height = narrowChart ? 380 : 400;
+  // 狭幅は右マージンに目安ラベルを置かず（線の左端上に重ねる）、本体に幅を使う＝右paddingを小さく。
   const padding = narrowChart
-    ? { top: 20, right: 96, bottom: 38, left: 64 }
+    ? { top: 22, right: 26, bottom: 38, left: 60 }
     : { top: 36, right: 150, bottom: 54, left: 78 };
   // モバイルの金額ラベルは「万」表記（例: 1,680,000 → 168万）で横幅を圧縮し読みやすく。
   const toMan = (v) => {
@@ -622,18 +623,28 @@ function renderChart(input, projection) {
       y1: y.toFixed(1),
       y2: y.toFixed(1)
     });
-    appendSvg(svg, "text", {
-      class: "chart-guide-label",
-      x: width - padding.right + 10,
-      y: (y - 1).toFixed(1)
-    }, label);
-    // 目安線の実際の金額も併記（何を基準に何ヶ月分かが分かるように）
-    if (index > 0) {
+    if (narrowChart) {
+      // 狭幅: 目安線の左端・線の上に「6ヶ月分 168万」を1行で載せる（右マージン不要＝本体が広く使える）
+      const inlineLabel = index === 0 ? label : `${label} ${fmtAxis(value)}`;
       appendSvg(svg, "text", {
-        class: "chart-guide-sub",
+        class: "chart-guide-label",
+        x: (padding.left + 6).toFixed(1),
+        y: (y - 5).toFixed(1)
+      }, inlineLabel);
+    } else {
+      appendSvg(svg, "text", {
+        class: "chart-guide-label",
         x: width - padding.right + 10,
-        y: (y + 11).toFixed(1)
-      }, fmtAxis(value));
+        y: (y - 1).toFixed(1)
+      }, label);
+      // 目安線の実際の金額も併記（何を基準に何ヶ月分かが分かるように）
+      if (index > 0) {
+        appendSvg(svg, "text", {
+          class: "chart-guide-sub",
+          x: width - padding.right + 10,
+          y: (y + 11).toFixed(1)
+        }, fmtAxis(value));
+      }
     }
   });
 
