@@ -2050,6 +2050,112 @@ body.app-empty .sample-btn:hover {
   margin-top: 8px;
 }
 
+/* 同年代ベンチマーク（任意・送信なし） */
+.benchmark-details > summary {
+  cursor: pointer;
+  font-weight: 800;
+  color: var(--ink-2);
+  list-style: none;
+  padding: 4px 0;
+}
+.benchmark-details > summary::-webkit-details-marker {
+  display: none;
+}
+.benchmark-details > summary::before {
+  content: "▸ ";
+  color: var(--muted);
+}
+.benchmark-details[open] > summary::before {
+  content: "▾ ";
+}
+.benchmark-note {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px 12px;
+}
+.benchmark-grid label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.benchmark-grid select {
+  font-size: 16px; /* iOSの自動ズーム回避 */
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.benchmark-optional-note {
+  margin: 8px 0 0;
+  color: var(--muted-2);
+  font-size: 0.76rem;
+}
+.benchmark-button {
+  margin-top: 12px;
+}
+.benchmark-result {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+}
+.benchmark-result--hint {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.benchmark-result.is-above {
+  border-color: var(--safe);
+  background: var(--safe-soft);
+}
+.benchmark-result.is-below {
+  border-color: var(--accent-soft);
+  background: var(--accent-soft);
+}
+.benchmark-headline {
+  margin: 0 0 6px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.benchmark-compare {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+}
+.benchmark-pct {
+  margin-top: 8px;
+}
+.benchmark-pct > summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.benchmark-pct p {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  color: var(--ink-2);
+}
+.benchmark-caveat {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.benchmark-source {
+  margin: 10px 0 0;
+  color: var(--muted-2);
+  font-size: 0.74rem;
+}
+
 .chart-help {
   margin: 0 0 8px;
   color: var(--muted);

@@ -51,7 +51,15 @@ const elements = {
   actionList: document.querySelector("#actionList"),
   sampleButton: document.querySelector("#sampleButton"),
   buyCheckSection: document.querySelector("#buy-check-section"),
-  basicsHint: document.querySelector("#basicsHint")
+  basicsHint: document.querySelector("#basicsHint"),
+  bmAge: document.querySelector("#bmAge"),
+  bmHousehold: document.querySelector("#bmHousehold"),
+  bmAsset: document.querySelector("#bmAsset"),
+  bmIncome: document.querySelector("#bmIncome"),
+  bmGender: document.querySelector("#bmGender"),
+  bmCompareButton: document.querySelector("#bmCompareButton"),
+  bmResult: document.querySelector("#bmResult"),
+  bmSource: document.querySelector("#bmSource")
 };
 
 function setActiveView(view) {
@@ -855,6 +863,82 @@ elements.applyButton.addEventListener("click", () => {
   }
 });
 window.addEventListener("pageshow", () => update({ commitLayout: true }));
+
+// ── 同年代ベンチマーク（送信なし・ブラウザ内計算・任意オプトイン）────────────
+// 公的統計(benchmark.js)を内蔵し、選んだ区分から「同年代・同世帯との比較」をローカル計算する。
+// percentileは中央値・平均からの推計目安として折りたたみ表示し、below は前進フレームで見せる。
+function setupBenchmark() {
+  const B = window.FutokoroBenchmark;
+  if (!B || !elements.bmAge) return;
+  const fill = (sel, buckets) => {
+    if (!sel) return;
+    sel.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.textContent = "選択してください";
+    sel.appendChild(ph);
+    buckets.forEach((bucket) => {
+      const opt = document.createElement("option");
+      opt.value = bucket.key;
+      opt.textContent = bucket.label;
+      sel.appendChild(opt);
+    });
+  };
+  fill(elements.bmAge, B.AGE_BUCKETS);
+  fill(elements.bmHousehold, B.HOUSEHOLD_BUCKETS);
+  fill(elements.bmAsset, B.ASSET_BUCKETS);
+  fill(elements.bmIncome, B.INCOME_BUCKETS);
+  fill(elements.bmGender, B.GENDER_BUCKETS);
+  if (elements.bmSource) elements.bmSource.textContent = `出典: ${B.SOURCE_NAME}`;
+
+  const yenMan = (man) => `${Math.round(man).toLocaleString("ja-JP")}万円`;
+
+  function renderBenchmarkResult() {
+    const res = elements.bmResult;
+    if (!res) return;
+    const ageKey = elements.bmAge.value;
+    const household = elements.bmHousehold.value;
+    const assetKey = elements.bmAsset.value;
+    if (!ageKey || !household || !assetKey) {
+      res.hidden = false;
+      res.className = "benchmark-result benchmark-result--hint";
+      res.textContent = "「年代」「世帯」「金融資産」の3つを選ぶと、同年代との比較が出ます。";
+      return;
+    }
+    const assetBucket = B.ASSET_BUCKETS.find((b) => b.key === assetKey);
+    const cmp = B.compareToPeers({ assetMan: assetBucket.mid, household, ageKey });
+    if (!cmp) {
+      res.hidden = false;
+      res.className = "benchmark-result benchmark-result--hint";
+      res.textContent = "この条件の比較データが見つかりませんでした。";
+      return;
+    }
+    const ageLabel = B.AGE_BUCKETS.find((b) => b.key === ageKey).label;
+    const hhLabel = B.HOUSEHOLD_BUCKETS.find((b) => b.key === household).label;
+    const above = cmp.position === "above";
+    // above/below を断定的に出さず前進フレームで（同年代より下でも「落ち込ませない」）。
+    const headline = above
+      ? "同年代の中央値と同じか、それ以上の水準です。"
+      : "ここを出発点に、これからの現金の動きを一緒に確認していきましょう。";
+    const pctLine = (cmp.percentile != null)
+      ? '<details class="benchmark-pct"><summary>参考の目安（推計）</summary>'
+        + `<p>同じ条件の中で、おおよそ上位 約${cmp.percentile}% の位置です。`
+        + '<span class="benchmark-caveat">※公表されている中央値・平均値から推計した目安です。実際の順位とは異なります（区分の代表値で計算しています）。</span></p></details>'
+      : "";
+    res.hidden = false;
+    res.className = above ? "benchmark-result is-above" : "benchmark-result is-below";
+    res.innerHTML =
+      `<p class="benchmark-headline">${headline}</p>`
+      + `<p class="benchmark-compare">${ageLabel}・${hhLabel}の金融資産の中央値は <strong>${yenMan(cmp.median)}</strong>。`
+      + `あなたが選んだ区分は <strong>${assetBucket.label}</strong> です。</p>`
+      + pctLine;
+  }
+
+  if (elements.bmCompareButton) {
+    elements.bmCompareButton.addEventListener("click", renderBenchmarkResult);
+  }
+}
+setupBenchmark();
 const tabList = Array.from(elements.viewTabs);
 tabList.forEach((tab, index) => {
   tab.addEventListener("click", () => setActiveView(tab.dataset.viewTab));

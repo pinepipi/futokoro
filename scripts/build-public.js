@@ -13,6 +13,7 @@ const publicFiles = [
   "styles.css",
   "app.js",
   "domain.js",
+  "benchmark.js",
   "io.js",
   "ads.js",
   "ads-config.js",

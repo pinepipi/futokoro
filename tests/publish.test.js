@@ -11,6 +11,7 @@ const expectedFiles = [
   "ads-config.js",
   "ads.js",
   "app.js",
+  "benchmark.js",
   "domain.js",
   "favicon.svg",
   "feedback.html",
