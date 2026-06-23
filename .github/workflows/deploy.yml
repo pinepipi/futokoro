@@ -32,7 +32,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node --test domain.test.js io.test.js
+      - run: node --test domain.test.js io.test.js tests/ci-guard.test.js
       - run: npm run test:publish
       # NOTE: test:e2e は現状 main で RED のため gate から除外（緑化後に追加・別タスク）。
 
@@ -137,6 +137,10 @@ jobs:
     if: ${{ failure() && needs.deploy-production.result == 'failure' && needs.deploy-production.outputs.production_attempted == 'true' }}
     runs-on: ubuntu-latest
     environment: production
+    # rollback が発火したら必ず Slack へ鳴らす（サイレントな本番巻き戻しを潰す）。
+    # SLACK_WEBHOOK_URL secret 未設定なら通知step は skip（パイプラインは止めない）。
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     # rollback 同士を直列化（複数の本番失敗が並走して競合 rollback にならないように）
     concurrency:
       group: deploy-production-rollback
@@ -173,11 +177,27 @@ jobs:
         env:
           SMOKE_URL: ${{ needs.deploy-production.outputs.lkg_url || 'https://futokoro.app' }}
         run: node scripts/smoke-http.mjs
-      - name: Alert (rollback recovered)
-        if: ${{ success() }}
-        run: echo "::warning::本番 smoke 失敗 → auto-rollback 成功（last-known-good=${{ needs.deploy-production.outputs.lkg_id }} へ巻き戻し・smoke pass）。Slack/board へ要記録。"
-      - name: Alert (rollback failed or impossible)
-        if: ${{ failure() }}
+      # rollback が走った時点で（成功・失敗とも）必ず Slack 通知。always() で Verify 失敗後も実行。
+      - name: Notify Slack (rollback fired)
+        if: ${{ always() && env.SLACK_WEBHOOK_URL != '' }}
+        env:
+          OUTCOME: ${{ steps.verify_rollback.outcome }}
+          LKG_ID: ${{ needs.deploy-production.outputs.lkg_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          echo "::error::本番 smoke 失敗かつ auto-rollback 失敗/不可。本番が不正状態の可能性。手動対応が必要。Slack/board へ要記録。"
+          set -euo pipefail
+          if [ "$OUTCOME" = "success" ]; then
+            text="⚠️ [ふところ.com] 本番smoke失敗→auto-rollback成功（last-known-good=$LKG_ID へ巻き戻し・再smoke pass）。pushした新版は本番未反映＝要原因確認: $RUN_URL"
+          else
+            text="🚨 [ふところ.com] 本番smoke失敗かつauto-rollback失敗/不可（verify=$OUTCOME）。本番が不正状態の可能性・手動対応が必要: $RUN_URL"
+          fi
+          payload=$(jq -nc --arg t "$text" '{text:$t}')
+          curl -sS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL" >/dev/null
+      - name: Note (rollback recovered)
+        if: ${{ steps.verify_rollback.outcome == 'success' }}
+        run: echo "::warning::auto-rollback 成功（last-known-good=${{ needs.deploy-production.outputs.lkg_id }} へ巻き戻し・smoke pass）。Slack通知済み・board へ要記録。"
+      - name: Fail job when not recovered
+        if: ${{ steps.verify_rollback.outcome != 'success' }}
+        run: |
+          echo "::error::本番 smoke 失敗かつ auto-rollback 失敗/不可。本番が不正状態の可能性。手動対応が必要。Slack通知済み。"
           exit 1

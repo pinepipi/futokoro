@@ -54,6 +54,7 @@ function parsePlaywright() {
 const results = [];
 results.push(run("build (production dist)", "npm", ["run", "build"]));
 results.push(run("test:domain (ドメイン単体)", "npm", ["run", "test:domain"]));
+results.push(run("test:ci-guard (CIパイプライン再発防止)", "npm", ["run", "test:ci-guard"]));
 results.push(run("test:publish (公開dist構成)", "npm", ["run", "test:publish"]));
 
 let pw = null;
