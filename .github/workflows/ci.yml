@@ -25,7 +25,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node --test domain.test.js io.test.js tests/ci-guard.test.js
+      - run: node --test domain.test.js io.test.js benchmark.test.js tests/ci-guard.test.js
       - run: npm run test:publish
       # NOTE: test:e2e（tests/smoke.playwright.js）は現状 main で RED（セレクタとアプリのDOM分岐がズレている）。
       #       緑化してから required gate に追加する（別タスク）。ピクセルvisual/a11yはOS依存のためローカル運用。

@@ -32,13 +32,46 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node --test domain.test.js io.test.js tests/ci-guard.test.js
+      - run: node --test domain.test.js io.test.js benchmark.test.js tests/ci-guard.test.js
       - run: npm run test:publish
       # NOTE: test:e2e は現状 main で RED のため gate から除外（緑化後に追加・別タスク）。
 
+  # ── ①' AI レビュアーゲート（人間PRの代わりに AI が差分を自動レビュー・P0/P1でdeploy阻止）──
+  #   ANTHROPIC_API_KEY 未設定なら警告のみでスキップ（かぴが secret 追加で有効化）。
+  #   API不調時は fail-open（scripts/ci-review.mjs 内で警告のみ）＝安全網は test/security と pre-push フック。
+  review:
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+      - name: AI code review gate
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "::warning::ANTHROPIC_API_KEY 未設定のため AIレビュアーをスキップ。リポジトリ secret に追加すると有効化されます。"
+            exit 0
+          fi
+          zero=0000000000000000000000000000000000000000
+          empty_tree=$(git hash-object -t tree /dev/null)
+          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "$zero" ]; then
+            git diff --no-color "$empty_tree".."$AFTER_SHA" > "$RUNNER_TEMP/diff.txt"
+          else
+            git diff --no-color "$BEFORE_SHA".."$AFTER_SHA" > "$RUNNER_TEMP/diff.txt"
+          fi
+          node scripts/ci-review.mjs "$RUNNER_TEMP/diff.txt"
+
   # ── ② preview デプロイ → preview URL を smoke（本番昇格の前提ゲート）──────────
   preview:
-    needs: gate
+    needs: [gate, review]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

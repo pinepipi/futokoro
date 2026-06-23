@@ -1,0 +1,66 @@
+#!/bin/sh
+# pre-push 自動レビュアー（ローカル Codex・新secret不要）
+#
+# 目的: 未レビューのコードが main に push される前に Codex でレビューし、
+#       VERDICT: changes なら push をブロックする（2026-06-23 の403誤rollback
+#       インシデントの遠因＝未完成WIPのmain直push を構造的に防ぐ）。
+# 有効化: git config core.hooksPath .githooks
+# 緊急回避: git push --no-verify
+#
+# 設計方針: フック自身の都合（codex未導入・実行エラー）では push を止めない（fail-open）。
+#           止めるのは Codex が明示的に VERDICT: changes を返した時だけ。
+#           CI 側にもう一段 AIレビュアー（scripts/ci-review.mjs）がある＝二重の網。
+
+zero=0000000000000000000000000000000000000000
+range=""
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "$local_sha" ] && continue
+  [ "$local_sha" = "$zero" ] && continue        # ブランチ削除はスキップ
+  if [ "$remote_sha" = "$zero" ]; then
+    # 新規ブランチ: origin/main との分岐点以降を対象
+    base=$(git merge-base origin/main "$local_sha" 2>/dev/null || echo "")
+    if [ -n "$base" ]; then range="$base..$local_sha"; else range="$local_sha"; fi
+  else
+    range="$remote_sha..$local_sha"
+  fi
+done
+
+[ -z "$range" ] && exit 0
+
+diff=$(git diff --no-color "$range" 2>/dev/null || echo "")
+[ -z "$diff" ] && exit 0
+
+if ! command -v codex >/dev/null 2>&1; then
+  echo "pre-push: codex CLI が無いため自動レビューをスキップ（fail-open）。" >&2
+  exit 0
+fi
+
+# 一時ファイルは worktree 並列でも衝突しない一意名（mktemp 不可環境は PID フォールバック）
+tmp=$(mktemp ./.cc-prepush-diff.XXXXXX 2>/dev/null) || tmp="./.cc-prepush-diff.$$.tmp"
+git diff --no-color "$range" > "$tmp" 2>/dev/null || { rm -f "$tmp"; exit 0; }
+
+echo "pre-push: Codex が $range をレビュー中..." >&2
+out=$(codex exec --sandbox read-only "ファイル $tmp の git diff を、正しさ・セキュリティ・本番を壊す論理穴の観点でレビューしてください。ファイルは編集しないこと。最後に必ず 'VERDICT: ok' か 'VERDICT: changes' を出し、changes の場合は file:line と修正方針を箇条書きで。" 2>&1) || true
+rm -f "$tmp"
+
+echo "$out" | tail -40 >&2
+
+# diff 本文に "VERDICT: changes" が含まれても誤ブロックしないよう、出力末尾の最後の判定だけを採用
+verdict=$(printf '%s' "$out" | grep -oE 'VERDICT: (ok|changes)' | tail -1)
+
+if [ "$verdict" = "VERDICT: changes" ]; then
+  echo "" >&2
+  echo "pre-push: ❌ Codex レビューで要修正（VERDICT: changes）→ push をブロックしました。" >&2
+  echo "          指摘を修正してから再 push するか、緊急時は: git push --no-verify" >&2
+  exit 1
+fi
+
+if [ "$verdict" = "VERDICT: ok" ]; then
+  echo "pre-push: ✅ Codex VERDICT: ok → push 続行" >&2
+  exit 0
+fi
+
+# 判定を取得できない（codex エラー等）＝フック都合では止めない（fail-open）
+echo "pre-push: Codex 判定を取得できず → fail-open で push 続行（安全網: CIレビュー/test/security）。" >&2
+exit 0

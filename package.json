@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build-public.js",
-    "test": "npm run test:domain && npm run test:io && npm run test:ci-guard && npm run test:publish && npm run test:e2e",
+    "test": "npm run test:domain && npm run test:io && npm run test:bench && npm run test:ci-guard && npm run test:publish && npm run test:e2e",
     "test:domain": "node --test domain.test.js",
     "test:io": "node --test io.test.js",
+    "test:bench": "node --test benchmark.test.js",
     "test:ci-guard": "node --test tests/ci-guard.test.js",
     "test:publish": "npm run build && node --test tests/publish.test.js",
     "test:e2e": "node tests/smoke.playwright.js",
