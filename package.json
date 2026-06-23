@@ -17,6 +17,7 @@
     "quality:evidence": "node scripts/collect-ui-evidence.mjs",
     "quality:visual:update": "playwright test visual.spec.js --update-snapshots",
     "quality:aria:update": "playwright test a11y.spec.js --update-snapshots",
+    "smoke:http": "node scripts/smoke-http.mjs",
     "deploy": "npm run build && npx wrangler pages deploy dist/ --project-name futokoro-com --branch main --commit-dirty=true"
   },
   "devDependencies": {

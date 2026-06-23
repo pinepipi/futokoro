@@ -1,0 +1,31 @@
+name: ci
+
+# PR 必須チェック（required status checks）。
+# main への PR でこのゲートが緑にならない限りマージ不可（branch protection と対）。
+# OS依存のピクセルvisual/a11yスナップショットはローカル運用（baselineがWindows固定）のためCIでは走らせない。
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node --test domain.test.js io.test.js
+      - run: npm run test:publish
+      # NOTE: test:e2e（tests/smoke.playwright.js）は現状 main で RED（セレクタとアプリのDOM分岐がズレている）。
+      #       緑化してから required gate に追加する（別タスク）。ピクセルvisual/a11yはOS依存のためローカル運用。
