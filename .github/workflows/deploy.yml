@@ -72,6 +72,7 @@ jobs:
     environment: production
     outputs:
       lkg_id: ${{ steps.lkg.outputs.id }}
+      lkg_url: ${{ steps.lkg.outputs.url }}
       production_attempted: ${{ steps.attempt.outputs.attempted }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -90,25 +91,40 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          resp=$(curl -sS -H "Authorization: Bearer $CF_API_TOKEN" \
+          resp=$(curl -sS --fail-with-body -H "Authorization: Bearer $CF_API_TOKEN" \
             "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/futokoro-com")
+          ok=$(echo "$resp" | jq -r '.success')
           id=$(echo "$resp" | jq -r '.result.canonical_deployment.id // ""')
+          # rollback 検証用に、現行serving本番デプロイの *.pages.dev URL も控える。
+          # （カスタムドメイン futokoro.app はゾーンの Bot 対策で CI から 403 されるため smoke に使えない）
+          dep_url=$(echo "$resp" | jq -r '.result.canonical_deployment.url // ""')
+          # rollback 先（現行serving本番デプロイ）を特定できなければ本番 deploy を中止（fail closed）。
+          # ここで止めれば本番は現行の正常版のまま＝壊さない。
+          if [ "$ok" != "true" ] || [ -z "$id" ]; then
+            echo "::error::canonical_deployment を特定できず（success=$ok id=${id:-<empty>}）。rollback 先不明のため本番 deploy を中止。"
+            exit 1
+          fi
           echo "id=$id" >> "$GITHUB_OUTPUT"
-          echo "currently-serving production deployment id = ${id:-<none>}"
+          echo "url=$dep_url" >> "$GITHUB_OUTPUT"
+          echo "currently-serving production deployment id = $id / url = $dep_url"
       - name: Mark production deploy attempted
         id: attempt
         # この step 以降の失敗のみ「本番に触れた失敗」＝rollback 対象。
         # build/capture など deploy 前の失敗では attempted が立たず rollback は走らない。
         run: echo "attempted=true" >> "$GITHUB_OUTPUT"
       - name: Deploy production to Cloudflare Pages
+        id: deploy_production
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=futokoro-com --branch=main
-      - name: Smoke test production URL
+      - name: Smoke test production deployment URL
+        # カスタムドメイン futokoro.app はゾーンの Bot 対策で CI(データセンターIP) を 403 する偽陰性が出る。
+        # 今デプロイした *.pages.dev デプロイURL（Bot対策の外）を smoke して「新ビルドが正しく配信」を検証する。
+        # 本番昇格＝production ブランチへの deploy 成功時点でカスタムドメインの alias は自動更新される。
         env:
-          SMOKE_URL: https://futokoro.app
+          SMOKE_URL: ${{ steps.deploy_production.outputs.deployment-url }}
         run: node scripts/smoke-http.mjs
 
   # ── ④ auto-rollback（本番 deploy/smoke 失敗時のみ）─────────────────────────
@@ -152,8 +168,10 @@ jobs:
           fi
       - name: Verify rollback
         id: verify_rollback
+        # rollback 後の canonical = last-known-good デプロイ。その *.pages.dev URL を smoke する
+        # （futokoro.app はゾーン Bot 対策で 403 偽陰性のため使わない）。URL 不明時はカスタムドメインに退避。
         env:
-          SMOKE_URL: https://futokoro.app
+          SMOKE_URL: ${{ needs.deploy-production.outputs.lkg_url || 'https://futokoro.app' }}
         run: node scripts/smoke-http.mjs
       - name: Alert (rollback recovered)
         if: ${{ success() }}

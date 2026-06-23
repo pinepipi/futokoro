@@ -49,7 +49,14 @@ async function fetchOnce() {
   try {
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "cache-control": "no-cache" },
+      headers: {
+        "cache-control": "no-cache",
+        // データセンターIP＋空UAは Cloudflare Bot 対策に 403 されやすい。
+        // 実ブラウザ相当の UA/Accept を送り、誤検知の偽陰性を減らす（本番smokeはデプロイURLを叩くのが基本）。
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
       // allowlist は最初のURLのみ検証するため、リダイレクトは追わず 3xx は不合格扱い
       // （許可ドメインが任意の遷移先へ飛ばす経路を塞ぐ）。正規の本番URLは 200 を直接返す。
       redirect: "manual",
