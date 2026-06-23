@@ -747,7 +747,7 @@ button[type="reset"] {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink-2); /* 非アクティブタブ：muted(#6d7385)だと小字でAA 4.4未達→濃く。アクティブは accentピル+白字で区別維持 */
   padding: 6px 12px;
   white-space: nowrap;
   box-shadow: none;
@@ -2047,6 +2047,44 @@ body.app-empty .sample-btn:hover {
   font-size: 0.84rem;
 }
 
+/* C: 残高グラフの凡例（線/最小点/目安線が何かを明示・FSA風の読みやすさ） */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-2); /* 小さめbold＝AA確保のため muted より濃く */
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.lg-swatch {
+  flex: 0 0 auto;
+}
+.lg-line {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.lg-low {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--warn);
+}
+.lg-guide {
+  width: 18px;
+  height: 0;
+  border-top: 2px dashed var(--muted-2);
+}
+
 .evidence-panel {
   margin-top: 18px;
   box-shadow: none;
@@ -2195,6 +2233,12 @@ body.app-empty .sample-btn:hover {
 
   .view-header {
     flex-direction: column;
+    /* B: タブをスクロール追従（長い結果でも まとめ/付箋/残高グラフ/金額表 をいつでも切替・FSAの常時ナビ発想） */
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--surface-strong);
+    padding-block: 6px;
   }
 
   /* 4タブは内容幅ベースで配分（grid等幅だと「残高グラフ」が1/4枠に収まらず右へ溢れて見える） */
