@@ -997,6 +997,9 @@ function showBuyResult(key, head, detail) {
   buyVerdict.className = key ? `buy-verdict ${key}` : "buy-verdict";
   buyReason.textContent = detail;
   buyResult.hidden = false;
+  // 判定ボタンを押したら、結果が画面外（特にスマホで入力の下）に隠れないよう結果までスクロール
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  buyResult.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
 }
 
 function runBuyCheck() {
