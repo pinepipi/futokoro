@@ -856,6 +856,8 @@ elements.form.addEventListener("reset", () => {
 elements.applyButton.addEventListener("click", () => {
   formatAllAmountFields();
   update({ commitLayout: true });
+  // ボタン文言「まとめを見る」と挙動を一致させる：他タブを開いていても『まとめ』へ戻してからスクロール
+  setActiveView("now");
   // 反映後、結果が入力欄の下に隠れて見えない問題への対応：結果へスクロール
   if (elements.resultsBoard && elements.resultsBoard.classList.contains("has-result")) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
