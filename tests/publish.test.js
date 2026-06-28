@@ -8,6 +8,7 @@ const rootDir = path.resolve(__dirname, "..");
 const distDir = path.join(rootDir, "dist");
 const expectedFiles = [
   "_headers",
+  "about.html",
   "ads-config.js",
   "ads.js",
   "app.js",
