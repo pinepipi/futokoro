@@ -308,7 +308,7 @@
                     いつ買う？
                     <select id="buyWhen" aria-label="購入する月"></select>
                   </label>
-                  <button type="button" id="buyCheckButton">判定する</button>
+                  <button type="button" id="buyCheckButton">購入後の残高を見る</button>
                 </div>
                 <div id="buyResult" class="buy-result" aria-live="polite" hidden>
                   <span id="buyVerdict" class="buy-verdict"></span>
@@ -361,7 +361,7 @@
             </section>
 
             <div class="form-actions">
-              <button type="button" id="applyButton" disabled>結果を見る</button>
+              <button type="button" id="applyButton" disabled>まとめへ移動 ↓</button>
               <button type="reset" id="resetButton">入力をクリア</button>
             </div>
             <p class="form-actions-hint" id="applyHint">入力すると自動で計算します。「結果を見る」で結果の位置へ移動できます。</p>
@@ -394,12 +394,12 @@
             </div>
             <p class="io-note">入力した内容をこの端末のファイルに保存し、次回や別端末で読み込んで続きから見られます。<strong>サーバーには一切送信しません。</strong>月ごとの記録は、書き出したファイルを手元で残しておく形で管理できます。</p>
             <div class="io-actions">
-              <button type="button" id="exportJsonButton" class="io-btn">書き出す（JSON）</button>
-              <label class="io-btn io-btn--file" for="importJsonInput">読み込む（JSON）
+              <button type="button" id="exportJsonButton" class="io-btn">メモとして保存（JSON）</button>
+              <label class="io-btn io-btn--file" for="importJsonInput">保存したメモを読み込む
                 <input type="file" id="importJsonInput" accept="application/json,.json" hidden>
               </label>
-              <button type="button" id="exportCsvButton" class="io-btn io-btn--ghost">CSVで書き出す</button>
-              <label class="io-btn io-btn--ghost io-btn--file" for="importCsvInput">CSVを読み込む
+              <button type="button" id="exportCsvButton" class="io-btn io-btn--ghost">Excel用に書き出す（CSV）</button>
+              <label class="io-btn io-btn--ghost io-btn--file" for="importCsvInput">Excel形式を読み込む（CSV）
                 <input type="file" id="importCsvInput" accept="text/csv,.csv" hidden>
               </label>
             </div>

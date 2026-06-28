@@ -2753,6 +2753,11 @@ body[data-active-view="notes"] .results-board {
   opacity: 1;
 }
 
+/* 基本3入力が未完了の間は購入前チェックを薄く（inert中＝まだ使えないことを視覚で示す） */
+#buy-check-section[inert] {
+  opacity: 0.5;
+}
+
 .input-panel .buy-check-panel .buy-check-inner {
   overflow: hidden;
   min-height: 0;
