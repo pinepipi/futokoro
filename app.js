@@ -756,7 +756,7 @@ function setApplyEnabled(enabled) {
   elements.applyButton.disabled = !enabled;
   if (elements.applyHint) {
     elements.applyHint.textContent = enabled
-      ? "入力すると自動で計算します。「結果を見る」で結果の位置へ移動できます。"
+      ? "入力すると自動で計算します。「まとめへ移動 ↓」で結果の位置へスクロールします。"
       : "現金・手取り・生活費のどれかを入れると、自動で計算します。";
   }
 }
