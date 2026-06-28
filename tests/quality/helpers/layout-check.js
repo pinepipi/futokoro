@@ -116,4 +116,44 @@ async function checkLayout(page) {
   return page.evaluate(`(${scanLayoutInPage.toString()})()`);
 }
 
-module.exports = { checkLayout, scanLayoutInPage };
+// レイアウトが落ち着くまで待つ。
+// `.layout` の grid 列幅は app-empty 切替時に 0.45s かけて補間される（styles.css の
+// transition: grid-template-columns）。この補間中に getBoundingClientRect を測ると、
+// アニメーション途中フレームで主要要素が一時的に重なり、崩れを誤検出する（リセット導線で再発）。
+// 主要要素の矩形が連続フレームで変化しなくなる＝トランジション完了まで待ってから判定する。
+async function waitForLayoutStable(page, { settleFrames = 3, maxFrames = 90 } = {}) {
+  await page.evaluate(
+    ({ settleFrames, maxFrames }) =>
+      new Promise((resolve) => {
+        const sig = () =>
+          Array.from(
+            document.querySelectorAll(
+              ".layout, .input-panel, .results-column, .side-column, .form-actions, button, input, select"
+            )
+          )
+            .map((el) => {
+              const r = el.getBoundingClientRect();
+              return `${Math.round(r.left)},${Math.round(r.top)},${Math.round(r.width)},${Math.round(r.height)}`;
+            })
+            .join("|");
+        let last = null;
+        let stable = 0;
+        let frames = 0;
+        const tick = () => {
+          const s = sig();
+          if (s === last) stable += 1;
+          else {
+            stable = 0;
+            last = s;
+          }
+          frames += 1;
+          if (stable >= settleFrames || frames >= maxFrames) resolve();
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+    { settleFrames, maxFrames }
+  );
+}
+
+module.exports = { checkLayout, scanLayoutInPage, waitForLayoutStable };

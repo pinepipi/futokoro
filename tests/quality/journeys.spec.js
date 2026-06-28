@@ -2,11 +2,13 @@
 // UI_ACCEPTANCE.md の必須導線を、画面崩れ・console/network 監視つきで検証する。
 const { test, expect } = require("@playwright/test");
 const { openApp, fillBasics, switchTab } = require("./helpers/app");
-const { checkLayout } = require("./helpers/layout-check");
+const { checkLayout, waitForLayoutStable } = require("./helpers/layout-check");
 const { attachConsoleNetwork, toIssues } = require("./helpers/console-network");
 
 // 各テストの崩れ assertion（P0/P1 が出たら fail）
 async function expectNoLayoutDefects(page, label) {
+  // grid 列幅補間などのトランジション完了を待つ（途中フレームの一時的な重なり誤検出を防ぐ）
+  await waitForLayoutStable(page);
   const issues = (await checkLayout(page)).filter((i) => i.severity === "P0" || i.severity === "P1");
   expect(issues, `${label} に画面崩れ: ${JSON.stringify(issues, null, 2)}`).toEqual([]);
 }
