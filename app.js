@@ -55,8 +55,6 @@ const elements = {
   bmAge: document.querySelector("#bmAge"),
   bmHousehold: document.querySelector("#bmHousehold"),
   bmAsset: document.querySelector("#bmAsset"),
-  bmIncome: document.querySelector("#bmIncome"),
-  bmGender: document.querySelector("#bmGender"),
   bmCompareButton: document.querySelector("#bmCompareButton"),
   bmResult: document.querySelector("#bmResult"),
   bmSource: document.querySelector("#bmSource")
@@ -866,6 +864,27 @@ elements.applyButton.addEventListener("click", () => {
 });
 window.addEventListener("pageshow", () => update({ commitLayout: true }));
 
+// 結果のコピー（クリップボードのみ・外部送信なし）。金額の実額は含めず「何ヶ月分か」だけを共有可能に。
+const copyResultButton = document.querySelector("#copyResultButton");
+const copyResultMsg = document.querySelector("#copyResultMsg");
+if (copyResultButton) {
+  copyResultButton.addEventListener("click", async () => {
+    const monthsEl = document.querySelector("#monthsBadge");
+    const months = (monthsEl && monthsEl.textContent || "").trim();
+    if (!months || months.includes("--")) {
+      if (copyResultMsg) copyResultMsg.textContent = "先に3つ入力してください";
+      return;
+    }
+    const text = `いまの現金は生活費の${months}（ふところ.com で試算 / 保存も送信もなし）`;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (copyResultMsg) copyResultMsg.textContent = "コピーしました";
+    } catch {
+      if (copyResultMsg) copyResultMsg.textContent = "コピーできませんでした";
+    }
+  });
+}
+
 // ── 同年代ベンチマーク（送信なし・ブラウザ内計算・任意オプトイン）────────────
 // 公的統計(benchmark.js)を内蔵し、選んだ区分から「同年代・同世帯との比較」をローカル計算する。
 // percentileは中央値・平均からの推計目安として折りたたみ表示し、below は前進フレームで見せる。
@@ -889,8 +908,6 @@ function setupBenchmark() {
   fill(elements.bmAge, B.AGE_BUCKETS);
   fill(elements.bmHousehold, B.HOUSEHOLD_BUCKETS);
   fill(elements.bmAsset, B.ASSET_BUCKETS);
-  fill(elements.bmIncome, B.INCOME_BUCKETS);
-  fill(elements.bmGender, B.GENDER_BUCKETS);
   if (elements.bmSource) elements.bmSource.textContent = `出典: ${B.SOURCE_NAME}`;
 
   const yenMan = (man) => `${Math.round(man).toLocaleString("ja-JP")}万円`;
@@ -1062,10 +1079,11 @@ function runBuyCheck() {
     }
 
     if (afterLowest.balance < floor3) {
+      const shortfall = floor3 - afterLowest.balance;
       showBuyResult(
         "warn",
         "購入後、3ヶ月目安を下回ります",
-        `${whenLabel}に${yen(amount)}を使うと、いちばん薄い${afterLowest.label}が${yen(afterLowest.balance)}まで下がり、生活費3ヶ月分（${yen(floor3)}）を割ります。`
+        `${whenLabel}に${yen(amount)}を使うと、いちばん薄い${afterLowest.label}が${yen(afterLowest.balance)}まで下がり、生活費3ヶ月分（${yen(floor3)}）を割ります。あと${yen(shortfall)}の余裕ができてからにするか、時期をずらす・分けて買うと3ヶ月分を保てます。`
       );
       return;
     }

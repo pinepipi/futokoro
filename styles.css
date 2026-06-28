@@ -1042,6 +1042,54 @@ button[type="reset"] {
   white-space: nowrap;
 }
 
+/* 結果のコピー（クリップボードのみ・送信なし）。結果が出ている時だけ表示 */
+.result-actions {
+  grid-column: 1 / -1;
+  margin-top: 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.results-board.has-result .result-actions {
+  display: flex;
+}
+
+.copy-result-btn {
+  border: 1px solid var(--line);
+  background: rgba(251, 252, 250, 0.82);
+  color: var(--ink-2);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.copy-result-btn:hover {
+  border-color: rgba(60, 74, 120, 0.36);
+  color: var(--accent);
+}
+
+.copy-result-msg {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* has-result: 主役数字を左寄せの主アンカーに（右端へ散らさず、視線の着地点を一つに） */
+.results-board.has-result .months-badge-block {
+  justify-items: start;
+  text-align: left;
+}
+
+/* has-result: ダイヤル内の月数表示はヒーロー数字と重複するため隠す（数字は1箇所に） */
+.results-board.has-result #rulerReadout {
+  display: none;
+}
+
 /* has-result: status-label（状態テキスト）を小さく - 月数の補足情報に */
 .results-board.has-result .status-topline h2 {
   font-size: clamp(0.9rem, 1.2vw, 1.1rem);

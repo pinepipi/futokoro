@@ -128,6 +128,10 @@
                     <p>3〜6ヶ月分は一般的な生活防衛資金の目安です（出どころは下の「3〜6ヶ月の目安と計算式」へ）。</p>
                     <p>この月数は「収入が止まった場合」に今の現金でもつ目安です。下の付箋・残高グラフは収入が続いた場合の見通しなので、数字が違って見えることがあります。</p>
                   </div>
+                  <div class="result-actions">
+                    <button type="button" id="copyResultButton" class="copy-result-btn">この結果をコピー</button>
+                    <span id="copyResultMsg" class="copy-result-msg" role="status" aria-live="polite"></span>
+                  </div>
                 </section>
 
   
@@ -246,14 +250,7 @@
                 <label>金融資産（預貯金＋投資など）
                   <select id="bmAsset"></select>
                 </label>
-                <label>年収（任意）
-                  <select id="bmIncome"></select>
-                </label>
-                <label>性別（任意）
-                  <select id="bmGender"></select>
-                </label>
               </div>
-              <p class="benchmark-optional-note">「年収」「性別」は今は比較にも送信にも使いません（将来、任意で協力できる分析機能のための項目です）。</p>
               <button type="button" id="bmCompareButton" class="primary-button benchmark-button">同年代と比べてみる</button>
               <div id="bmResult" class="benchmark-result" role="status" aria-live="polite" hidden></div>
               <p class="benchmark-source" id="bmSource"></p>
