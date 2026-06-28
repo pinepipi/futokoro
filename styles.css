@@ -650,6 +650,18 @@ button[type="reset"] {
   opacity: 0.8;
 }
 
+.document-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.document-list li {
+  line-height: 1.6;
+}
+
 /* ドキュメントページ内ナビ（about / privacy / feedback 横断） */
 .document-nav,
 .footer-nav {

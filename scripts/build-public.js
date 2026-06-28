@@ -7,6 +7,7 @@ const distDir = path.join(rootDir, "dist");
 const publicFiles = [
   "index.html",
   "about.html",
+  "guide.html",
   "favicon.svg",
   "privacy.html",
   "feedback.html",

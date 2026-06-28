@@ -18,6 +18,7 @@ const expectedFiles = [
   "feedback.html",
   "feedback.js",
   "functions/api/feedback.js",
+  "guide.html",
   "index.html",
   "io.js",
   "privacy.html",
