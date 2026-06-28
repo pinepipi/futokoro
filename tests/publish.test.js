@@ -85,3 +85,22 @@ test("ad config requires readiness gates before enabling external ads", async ()
   assert.match(adsSource, /readiness\.csp === true/);
   assert.match(adsSource, /readiness\.privacy === true/);
 });
+
+test("各公開HTMLページに _headers の CSP がある（CSP漏れの再発防止）", async () => {
+  const headers = await fs.readFile(path.join(distDir, "_headers"), "utf8");
+  const lines = headers.split(/\r?\n/);
+  // ルート行の直後行に Content-Security-Policy があるルート集合
+  const cspRoutes = new Set();
+  for (let i = 0; i < lines.length - 1; i += 1) {
+    if (/^\/\S*\s*$/.test(lines[i]) && /Content-Security-Policy:/i.test(lines[i + 1])) {
+      cspRoutes.add(lines[i].trim());
+    }
+  }
+  const htmlFiles = (await listFiles(distDir)).filter((f) => f.endsWith(".html") && !f.includes("/"));
+  for (const f of htmlFiles) {
+    const full = `/${f}`;                                   // 例: /about.html
+    const norm = f === "index.html" ? "/" : `/${f.replace(/\.html$/, "")}`; // 例: /about（index は /）
+    assert.ok(cspRoutes.has(full), `${full} に CSP が無い（_headers にHTMLページごとのCSP指定が必要）`);
+    assert.ok(cspRoutes.has(norm), `${norm} に CSP が無い（Cloudflareの /xxx 正規化経路にもCSPが必要）`);
+  }
+});
