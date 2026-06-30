@@ -8,6 +8,9 @@ const CONSOLE_ALLOWLIST = [
 
 // 外部送信ゼロ境界: ローカル file:// 配信以外への request は原則 NG。
 // （ads.js は既定 hidden で発火しないが、万一の外部接続を検出する）
+// 注: Cloudflare Web Analytics beacon は dist へのビルド時注入であり、ソースHTMLには無い。
+// テストはソースHTMLを file:// で開くため、ここは file:// のみ許可の厳格判定でよい
+// （= ソースに beacon が混入したら検出できる安全弁になる）。
 function isAllowedRequestUrl(url) {
   return url.startsWith("file://") || url.startsWith("data:") || url.startsWith("blob:");
 }

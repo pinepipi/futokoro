@@ -875,7 +875,7 @@ if (copyResultButton) {
       if (copyResultMsg) copyResultMsg.textContent = "先に3つ入力してください";
       return;
     }
-    const text = `いまの現金は生活費の${months}（ふところ.com で試算 / 保存も送信もなし）`;
+    const text = `いまの現金は生活費の${months}（ふところ.com で試算 / 金額は保存も送信もなし）`;
     try {
       await navigator.clipboard.writeText(text);
       if (copyResultMsg) copyResultMsg.textContent = "コピーしました";

@@ -253,7 +253,7 @@ async function main() {
   assert.equal(mobile.noteEvents.some((t) => /大きな出費 -700,000円/.test(t)), true);
   assert.equal(mobile.noteEvents.some((t) => /臨時収入 \+1,000,000円/.test(t)), true);
   assert.equal(mobile.noteEvents.some((t) => /大きな出費 -200,000円/.test(t)), true);
-  assert.match(mobile.metaDescription, /保存・送信なし/);
+  assert.match(mobile.metaDescription, /金額は保存も送信もしない/);
   assert.equal(mobile.ogTitle, "ふところ.com | この出費、今して大丈夫？");
   assert.equal(mobile.canonicalCount, 0);
 

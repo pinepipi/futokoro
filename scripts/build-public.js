@@ -4,6 +4,8 @@ const crypto = require("node:crypto");
 
 const rootDir = path.resolve(__dirname, "..");
 const distDir = path.join(rootDir, "dist");
+
+const CF_BEACON_TOKEN = "d7c3bfca3be048ffb5aa715d10443ec5"; // 公開Cloudflare Web Analytics beaconトークン（HTMLに埋め込む前提＝秘密でない）
 const publicFiles = [
   "index.html",
   "about.html",
@@ -54,6 +56,26 @@ async function bustCacheInHtml() {
   }
 }
 
+// Cloudflare Web Analytics の beacon は「デプロイ時の関心事」であり、ソースHTMLには置かない。
+// 理由: テストは file:// でソースHTMLを直接開くため、ソースに beacon があると RUM POST が
+// CORS で失敗して console-error になり quality:gate が赤くなる。
+// そこでビルド時に dist のHTMLにだけ </body> 直前へ beacon を注入する（本番 dist は計測あり／テストは clean）。
+async function injectBeaconInHtml() {
+  const beaconTag =
+    `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" ` +
+    `data-cf-beacon='{"token":"${CF_BEACON_TOKEN}"}'></script>`;
+  const htmlFiles = publicFiles.filter((f) => f.endsWith(".html"));
+  for (const html of htmlFiles) {
+    const p = path.join(distDir, html);
+    let src = await fs.readFile(p, "utf8");
+    // 冪等性: すでに beacon があれば二重注入しない
+    if (src.includes("static.cloudflareinsights.com/beacon.min.js")) continue;
+    // </body>（末尾の閉じタグ）直前へ挿入。インデントは既存の閉じタグに合わせる。
+    src = src.replace(/([^\S\r\n]*)<\/body>/, `    ${beaconTag}\n$1</body>`);
+    await fs.writeFile(p, src);
+  }
+}
+
 async function build() {
   await fs.rm(distDir, { recursive: true, force: true });
   await fs.mkdir(distDir, { recursive: true });
@@ -74,6 +96,9 @@ async function build() {
 
   // 公開HTMLの css/js 参照にキャッシュバスティングのクエリを付与
   await bustCacheInHtml();
+
+  // dist のHTMLにだけ Cloudflare Web Analytics の beacon を注入（ソースHTMLには置かない）
+  await injectBeaconInHtml();
 }
 
 build().catch((error) => {

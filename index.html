@@ -4,16 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-adsense-account" content="ca-pub-6477824591201996">
-    <meta name="description" content="この出費、今して大丈夫？現金・収入・支出を入れるだけ。保存・送信なし、ログイン不要で、購入後の家計余力を試算。生活費の何ヶ月分あるか・12ヶ月の底の月も分かります。">
+    <meta name="description" content="この出費、今して大丈夫？現金・収入・支出を入れるだけ。金額は保存も送信もしない、ログイン不要で、購入後の家計余力を試算。生活費の何ヶ月分あるか・12ヶ月の底の月も分かります。">
     <meta name="robots" content="index,follow">
     <meta property="og:title" content="ふところ.com | この出費、今して大丈夫？">
-    <meta property="og:description" content="買う前の3秒チェック。保存・送信なし、ログイン不要。購入後の家計余力がすぐ分かります。">
+    <meta property="og:description" content="買う前の3秒チェック。金額は保存も送信もしない、ログイン不要。購入後の家計余力がすぐ分かります。">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ふところ.com">
     <meta property="og:locale" content="ja_JP">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="ふところ.com | この出費、今して大丈夫？">
-    <meta name="twitter:description" content="この出費して大丈夫？保存・送信なし、ログイン不要の家計チェック。">
+    <meta name="twitter:description" content="この出費して大丈夫？金額は保存も送信もしない、ログイン不要の家計チェック。">
     <title>ふところ.com | この出費、今して大丈夫？</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css">
@@ -22,9 +22,9 @@
     <main class="app-shell">
       <header class="app-header">
         <div>
-          <p class="eyebrow">保存なし・送信なし・ログイン不要</p>
+          <p class="eyebrow">金額は保存しない・送信しない・ログイン不要</p>
           <h1>ふところ.com</h1>
-          <p class="header-copy">この出費、今して大丈夫？<strong>現金・収入・支出の3つを入れるだけ</strong>。購入後に3ヶ月分の備えが残るか、12ヶ月でいちばん現金が薄くなる月がどこかを、<strong>保存も送信もせずに</strong>確認します。</p>
+          <p class="header-copy">この出費、今して大丈夫？<strong>現金・収入・支出の3つを入れるだけ</strong>。購入後に3ヶ月分の備えが残るか、12ヶ月でいちばん現金が薄くなる月がどこかを、<strong>入力した金額を保存も送信もせずに</strong>確認します。</p>
         </div>
         <div class="header-actions">
           <a class="privacy-badge" href="./feedback.html">要望・問い合わせ</a>
@@ -34,7 +34,7 @@
       <ul class="trust-strip" aria-label="データの扱い">
         <li>この端末だけで計算</li>
         <li>入力は保存しません</li>
-        <li>外部に送信しません</li>
+        <li>入力した金額は外部に送信しません</li>
       </ul>
 
       <section class="layout">
@@ -320,7 +320,7 @@
             <p class="panel-copy">まずはざっくりで大丈夫。毎月ほぼ同じ支出を生活費へ、今月だけ大きい支払いは下の「大きな支払い」へ分けます。</p>
 
             <div class="empty-guide">
-              <p class="empty-guide-lead">大きな買い物の前に3秒チェック。下の3つを入れるだけで確認できます（<strong>保存も送信もしません</strong>）。</p>
+              <p class="empty-guide-lead">大きな買い物の前に3秒チェック。下の3つを入れるだけで確認できます（<strong>入力した金額を保存も送信もしません</strong>）。</p>
               <ul class="empty-guide-list">
                 <li><strong>これ買える？</strong><span>値段と時期を入れると、購入後に3ヶ月分の備えが残るか確認</span></li>
                 <li><strong>あと何ヶ月分？</strong><span>いまの現金が、毎月の生活費の何ヶ月分もつか</span></li>
@@ -411,8 +411,10 @@
               <p>入力はこの端末の中だけ</p>
             </div>
             <p>
-              入力された金額と試算結果はサーバーへ送信せず、Cookie、localStorage、アクセス解析、外部APIを使用しません。
-              入力値はブラウザ上の計算にのみ使用され、ページを再読み込みすると消えます。
+              入力された金額と試算結果はサーバーへ送信せず、保存もしません。入力値はブラウザ上の計算にのみ使用され、ページを再読み込みすると消えます。アプリ自体は Cookie・localStorage を使いません。
+            </p>
+            <p>
+              なお、サイトの利用状況を把握するため、Cookieを使わず個人を特定しないアクセス集計（Cloudflare Web Analytics）を利用しています。集計は入力した金額や試算結果とは結びつきません。詳しくは<a class="inline-link" href="./privacy.html">プライバシーポリシー</a>をご覧ください。
             </p>
             <details class="notice-details">
               <summary>免責</summary>
