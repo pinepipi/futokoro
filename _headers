@@ -4,7 +4,7 @@
 # よって /* には CSP 以外の共通ヘッダだけを置き、CSP は各ページに付ける。
 # また Cloudflare は /xxx.html を /xxx に正規化するため、両方の経路を書く。
 
-# 計算ページ = 厳格（外部通信ゼロ・保存なし送信なしの担保）
+# 計算ページ = 厳格（財務データの外部送信ゼロ・Cookieレスのアクセス集計(CWA)のみ許可）
 /
   Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; img-src 'self' data:; connect-src https://cloudflareinsights.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 /index.html

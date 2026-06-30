@@ -87,6 +87,35 @@ test("ad config requires readiness gates before enabling external ads", async ()
   assert.match(adsSource, /readiness\.privacy === true/);
 });
 
+test("計算ページCSPはCWAビーコンを許可しつつ unsafe-inline/unsafe-eval を一切含まない（ビーコンCSP固定・将来の弱体化防止）", async () => {
+  const headers = await fs.readFile(path.join(distDir, "_headers"), "utf8");
+  const lines = headers.split(/\r?\n/);
+
+  // CSP 行（route 行の直後）を収集
+  const cspLines = lines.filter((line) => /Content-Security-Policy:/i.test(line));
+  assert.ok(cspLines.length > 0, "_headers に CSP 行が見つからない");
+
+  // どの CSP 行にも unsafe-inline / unsafe-eval が無いこと
+  for (const line of cspLines) {
+    assert.ok(!line.includes("'unsafe-inline'"), `CSP に 'unsafe-inline' が混入: ${line.trim()}`);
+    assert.ok(!line.includes("'unsafe-eval'"), `CSP に 'unsafe-eval' が混入: ${line.trim()}`);
+  }
+
+  // 少なくとも1つの計算ページCSP（/index.html）が CWA ビーコンを許可していること
+  const indexIdx = lines.findIndex((line) => /^\/index\.html\s*$/.test(line));
+  assert.ok(indexIdx >= 0, "_headers に /index.html ルートが無い");
+  const indexCsp = lines[indexIdx + 1] || "";
+  assert.ok(/Content-Security-Policy:/i.test(indexCsp), "/index.html の直後に CSP 行が無い");
+  assert.ok(
+    indexCsp.includes("https://static.cloudflareinsights.com"),
+    "/index.html の script-src に CWA ビーコン(static.cloudflareinsights.com)が無い"
+  );
+  assert.ok(
+    indexCsp.includes("https://cloudflareinsights.com"),
+    "/index.html の connect-src に CWA 収集先(cloudflareinsights.com)が無い"
+  );
+});
+
 test("各公開HTMLページに _headers の CSP がある（CSP漏れの再発防止）", async () => {
   const headers = await fs.readFile(path.join(distDir, "_headers"), "utf8");
   const lines = headers.split(/\r?\n/);
