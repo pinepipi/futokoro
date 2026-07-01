@@ -87,32 +87,81 @@ test("ad config requires readiness gates before enabling external ads", async ()
   assert.match(adsSource, /readiness\.privacy === true/);
 });
 
-test("計算ページCSPはCWAビーコンを許可しつつ unsafe-inline/unsafe-eval を一切含まない（ビーコンCSP固定・将来の弱体化防止）", async () => {
+// CSP 文字列を { directive名: [source, ...] } にパースする。
+// 例: "default-src 'self'; script-src 'self' https://x" →
+//     { "default-src": ["'self'"], "script-src": ["'self'", "https://x"] }
+function parseCsp(cspValue) {
+  const directives = {};
+  for (const segment of cspValue.split(";")) {
+    const tokens = segment.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) continue;
+    const [name, ...sources] = tokens;
+    directives[name.toLowerCase()] = sources;
+  }
+  return directives;
+}
+
+// _headers の「ルート行 → 直後の Content-Security-Policy 行」から CSP 値を取り出す。
+function cspForRoute(lines, route) {
+  const idx = lines.findIndex((line) => line.trim() === route);
+  if (idx < 0) return null;
+  const cspLine = lines[idx + 1] || "";
+  const m = cspLine.match(/Content-Security-Policy:\s*(.+)$/i);
+  return m ? m[1].trim() : null;
+}
+
+test("計算ページCSPはCWAビーコンを正しいディレクティブで許可しつつ unsafe-inline/unsafe-eval を一切含まない（ビーコンCSP固定・将来の弱体化防止）", async () => {
   const headers = await fs.readFile(path.join(distDir, "_headers"), "utf8");
   const lines = headers.split(/\r?\n/);
 
-  // CSP 行（route 行の直後）を収集
+  // どの CSP 行にも unsafe-inline / unsafe-eval が無いこと
   const cspLines = lines.filter((line) => /Content-Security-Policy:/i.test(line));
   assert.ok(cspLines.length > 0, "_headers に CSP 行が見つからない");
-
-  // どの CSP 行にも unsafe-inline / unsafe-eval が無いこと
   for (const line of cspLines) {
     assert.ok(!line.includes("'unsafe-inline'"), `CSP に 'unsafe-inline' が混入: ${line.trim()}`);
     assert.ok(!line.includes("'unsafe-eval'"), `CSP に 'unsafe-eval' が混入: ${line.trim()}`);
   }
 
-  // 少なくとも1つの計算ページCSP（/index.html）が CWA ビーコンを許可していること
-  const indexIdx = lines.findIndex((line) => /^\/index\.html\s*$/.test(line));
-  assert.ok(indexIdx >= 0, "_headers に /index.html ルートが無い");
-  const indexCsp = lines[indexIdx + 1] || "";
-  assert.ok(/Content-Security-Policy:/i.test(indexCsp), "/index.html の直後に CSP 行が無い");
-  assert.ok(
-    indexCsp.includes("https://static.cloudflareinsights.com"),
-    "/index.html の script-src に CWA ビーコン(static.cloudflareinsights.com)が無い"
-  );
-  assert.ok(
-    indexCsp.includes("https://cloudflareinsights.com"),
-    "/index.html の connect-src に CWA 収集先(cloudflareinsights.com)が無い"
+  // 計算ページの両ルート（/ と /index.html）でディレクティブ単位に検証する。
+  // 単純な文字列包含では「間違ったディレクティブに載っていても通る」ため、必ずパースして判定。
+  for (const route of ["/", "/index.html"]) {
+    const cspValue = cspForRoute(lines, route);
+    assert.ok(cspValue, `${route} の直後に CSP 行が無い`);
+    const directives = parseCsp(cspValue);
+
+    assert.ok(
+      (directives["script-src"] || []).includes("https://static.cloudflareinsights.com"),
+      `${route} の script-src に CWA ビーコン(static.cloudflareinsights.com)が無い`
+    );
+    assert.ok(
+      (directives["connect-src"] || []).includes("https://cloudflareinsights.com"),
+      `${route} の connect-src に CWA 収集先(cloudflareinsights.com)が無い`
+    );
+  }
+});
+
+test("CWA beacon は意図した公開HTMLページだけに1回ずつ注入される（注入対象の固定・拡散/欠落の防止）", async () => {
+  // publish.test.js は npm run test:publish 経由でビルド後（dist 生成後）に実行される。
+  const BEACON = "static.cloudflareinsights.com/beacon.min.js";
+  const expectedBeaconPages = ["index.html", "about.html", "guide.html", "privacy.html", "feedback.html"].sort();
+
+  const files = await listFiles(distDir);
+  const withBeacon = [];
+  for (const rel of files) {
+    const content = await fs.readFile(path.join(distDir, rel), "utf8");
+    const occurrences = content.split(BEACON).length - 1;
+    if (occurrences > 0) {
+      withBeacon.push(rel);
+      // 各対象ページに1回だけ（二重注入なし）
+      assert.equal(occurrences, 1, `${rel} に beacon が ${occurrences} 回注入されている（1回であるべき）`);
+    }
+  }
+
+  // beacon を含むファイル集合が、意図した公開HTMLページと完全一致すること
+  assert.deepEqual(
+    withBeacon.sort(),
+    expectedBeaconPages,
+    "CWA beacon の注入対象が意図した公開HTMLページ集合と一致しない（拡散または欠落）"
   );
 });
 
