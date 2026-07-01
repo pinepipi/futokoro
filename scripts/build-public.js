@@ -21,7 +21,10 @@ const publicFiles = [
   "io.js",
   "ads.js",
   "ads-config.js",
-  "_headers"
+  "_headers",
+  "og-image.png",
+  "sitemap.xml",
+  "robots.txt"
 ];
 
 const functionsSrc = path.join(rootDir, "functions");

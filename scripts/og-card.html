@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <!--
+      OGP source card (1200x630). Not shipped to dist.
+      Rendered to /og-image.png by scripts/gen-og-image.mjs (Playwright chromium).
+      Palette mirrors styles.css: --paper #fbfcfa / --bg #d4d3cb / --accent #3c4a78 / --ink #1b1f2a / --safe #3f5b50
+    -->
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1200px; height: 630px; }
+      body {
+        font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+        background:
+          radial-gradient(120% 140% at 78% 12%, #edece5 0%, rgba(237,236,229,0) 55%),
+          linear-gradient(150deg, #fbfcfa 0%, #eceae2 58%, #d9d8ce 100%);
+        color: #1b1f2a;
+        position: relative;
+        overflow: hidden;
+      }
+      .frame {
+        position: absolute;
+        inset: 0;
+        padding: 84px 96px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .top { display: flex; align-items: center; gap: 22px; }
+      .mark {
+        width: 78px;
+        height: 78px;
+        flex: 0 0 auto;
+      }
+      .mark .pouch-body { fill: #c6ccde; stroke: #3c4a78; stroke-width: 2.2; }
+      .mark .pouch-cuff { fill: #3c4a78; }
+      .mark .pouch-string { fill: none; stroke: #3c4a78; stroke-width: 2.2; stroke-linecap: round; }
+      .mark .pouch-knot { fill: #3c4a78; }
+      .brand-line { display: flex; flex-direction: column; }
+      .brand {
+        font-size: 46px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: #1b1f2a;
+        line-height: 1;
+      }
+      .brand small { font-size: 26px; font-weight: 700; color: #6d7385; }
+      .eyebrow {
+        margin-top: 8px;
+        font-size: 21px;
+        font-weight: 700;
+        color: #3f5b50;
+        letter-spacing: 0.04em;
+      }
+      .center { }
+      .headline {
+        font-size: 92px;
+        font-weight: 800;
+        line-height: 1.12;
+        letter-spacing: 0.01em;
+        color: #1b1f2a;
+      }
+      .headline .accent { color: #3c4a78; }
+      .subline {
+        margin-top: 30px;
+        font-size: 34px;
+        font-weight: 600;
+        line-height: 1.5;
+        color: #353b4c;
+      }
+      .bottom { display: flex; align-items: center; gap: 18px; }
+      .chip {
+        font-size: 25px;
+        font-weight: 700;
+        color: #3c4a78;
+        background: #c6ccde;
+        border-radius: 999px;
+        padding: 12px 26px;
+      }
+      .chip.safe { color: #3f5b50; background: #d2ddd5; }
+      .url {
+        margin-left: auto;
+        font-size: 27px;
+        font-weight: 700;
+        color: #6d7385;
+        letter-spacing: 0.03em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="top">
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path class="pouch-body" d="M18.5 22 C11 26.5 9 33.5 11.4 39.8 C13.6 44.7 18.6 45 24 45 C29.4 45 34.4 44.7 36.6 39.8 C39 33.5 37 26.5 29.5 22 Z"></path>
+          <path class="pouch-string" d="M14.5 23 C13.6 25.4 13.2 27.4 14 29.4"></path>
+          <path class="pouch-string" d="M33.5 23 C34.4 25.4 34.8 27.4 34 29.4"></path>
+          <rect class="pouch-cuff" x="16.5" y="18.5" width="15" height="5.4" rx="2.7"></rect>
+          <path class="pouch-string" d="M19 21.2 C21.5 22.1 26.5 22.1 29 21.2"></path>
+          <circle class="pouch-knot" cx="24" cy="21.2" r="1.7"></circle>
+        </svg>
+        <div class="brand-line">
+          <div class="brand">ふところ<small>.com</small></div>
+          <div class="eyebrow">保存も送信もしない・ログイン不要</div>
+        </div>
+      </div>
+
+      <div class="center">
+        <div class="headline">この出費、<br>今して<span class="accent">大丈夫？</span></div>
+        <div class="subline">現金・収入・支出を入れるだけ。保存も送信もなし。</div>
+      </div>
+
+      <div class="bottom">
+        <div class="chip">購入後の家計余力を試算</div>
+        <div class="chip safe">3秒でチェック</div>
+        <div class="url">futokoro.app</div>
+      </div>
+    </div>
+  </body>
+</html>

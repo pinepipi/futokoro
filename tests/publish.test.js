@@ -21,7 +21,10 @@ const expectedFiles = [
   "guide.html",
   "index.html",
   "io.js",
+  "og-image.png",
   "privacy.html",
+  "robots.txt",
+  "sitemap.xml",
   "styles.css"
 ].sort();
 const forbiddenDirectories = [
